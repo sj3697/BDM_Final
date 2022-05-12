@@ -89,7 +89,7 @@ def readPatterns_2020_10(partId, part):
 
 
 def main(sc):
-    spark = SparkSession()
+    spark = SparkSession(sc)
     df = pd.read_csv('nyc_cbg_centroids.csv')
     outputCBG = df.set_index('cbg_fips').T.to_dict('list')
 
