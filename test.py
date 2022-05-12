@@ -40,7 +40,7 @@ def main(sc):
     outputSuermarket = df_s['safegraph_placekey'].to_numpy()
 
     output2020_03 = sc.textFile('/tmp/bdm/weekly-patterns-nyc-2019-2020') \
-              .mapPartitionsWithIndex(readPatterns_2020_03)
+              .mapPartitionsWithIndex(readPatterns)
 
     deptColumns = ["cbg","dis","count"]
     df_2019_03 = output2019_03.toDF(deptColumns)
