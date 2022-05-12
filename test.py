@@ -4,6 +4,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
 from pyspark import SparkContext
+import pandas as pd
 
 def main(sc):
     spark = SparkSession(sc)
