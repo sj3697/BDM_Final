@@ -34,6 +34,7 @@ def main(sc):
     
     final = pd.read_csv('nyc_cbg_centroids.csv')
     final = final[['cbg_fips']]
+    final = final.rename({'cbg_fips':'cbg'}, axis=1)
 
     df_s = pd.read_csv('nyc_supermarkets.csv')
     outputSuermarket = df_s['safegraph_placekey'].to_numpy()
@@ -48,7 +49,6 @@ def main(sc):
     df_2019_03 = df_2019_03.withColumn('2019_03', (df_2019_03[1]/df_2019_03[2])).select('cbg', '2019_03')
     df_2019_03 = df_2019_03.toPandas()
     final = final.merge(df_2019_03, on = 'cbg', how = 'left')
-    final.head()
     
     final.saveAsTextFile('test')
 
