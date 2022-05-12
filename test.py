@@ -8,9 +8,9 @@ import pandas as pd
 
 def main(sc):
     def readPlacekey(partId, part):
-    if partId == 0: next(part)
-    for x in csv.reader(part):
-        yield x[9]
+        if partId == 0: next(part)
+        for x in csv.reader(part):
+            yield x[9]
 
     outputSuermarket = sc.textFile('nyc_supermarkets.csv') \
                 .mapPartitionsWithIndex(readPlacekey).collect()
