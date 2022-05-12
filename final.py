@@ -93,20 +93,12 @@ def main(sc):
     df = pd.read_csv('nyc_cbg_centroids.csv')
     outputCBG = df.set_index('cbg_fips').T.to_dict('list')
 
-    CBG = 'nyc_cbg_centroids.csv'
-    final = spark.read.load(CBG, format='csv', header=True, inferSchema=True)
+    #CBG = 'nyc_cbg_centroids.csv'
+    final = spark.read.load('nyc_cbg_centroids.csv', format='csv', header=True, inferSchema=True)
     final = final.select(final['cbg_fips'].alias('cbg'))
     
     outputSuermarket = sc.textFile('nyc_supermarkets.csv') \
                 .mapPartitionsWithIndex(readPlacekey).collect()
-
-    df = pd.read_csv('nyc_cbg_centroids.csv')
-    outputCBG = df.set_index('cbg_fips').T.to_dict('list')
-
-    CBG = 'nyc_cbg_centroids.csv'
-    final = spark.read.load(CBG, format='csv', header=True, inferSchema=True)
-    final = final.select(final['cbg_fips'].alias('cbg'))
-    #final.show()
     
     # 2019_03
     output2019_03 = sc.textFile('/tmp/bdm/weekly-patterns-nyc-2019-2020') \
