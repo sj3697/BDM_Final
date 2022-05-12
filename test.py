@@ -7,7 +7,7 @@ from pyspark import SparkContext
 import pandas as pd
 
 def main(sc):
-    spark = SparkSession(sc)
+    #spark = SparkSession(sc)
     final = spark.read.load('nyc_cbg_centroids.csv', format='csv', header=True, inferSchema=True)
     final = final.select(final['cbg_fips'].alias('cbg'))
     
@@ -20,4 +20,5 @@ def main(sc):
 
 if __name__ == '__main__':
   sc = SparkContext()
+  spark = SparkSession(sc)
   main(sc)
