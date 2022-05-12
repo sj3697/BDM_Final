@@ -7,15 +7,11 @@ from pyspark import SparkContext
 import pandas as pd
 
 def main(sc):
-    def readPlacekey(partId, part):
-        if partId == 0: next(part)
-        for x in csv.reader(part):
-            yield x[9]
-
-    outputSuermarket = sc.textFile('nyc_supermarkets.csv') \
-                .mapPartitionsWithIndex(readPlacekey).collect()
+    final = pd.read_csv('nyc_cbg_centroids.csv')
+    final = final[['cbg_fips']]
+    final=spark.createDataFrame(final)
     
-    outputSuermarket.saveAsTextFile('test')
+    final.saveAsTextFile('test')
 
 if __name__ == '__main__':
   sc = SparkContext()
