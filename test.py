@@ -7,18 +7,17 @@ from pyspark import SparkContext
 import pandas as pd
 
 def main(sc):
-    #spark = SparkSession(sc)
-    final = spark.read.load('nyc_cbg_centroids.csv', format='csv', header=True, inferSchema=True)
-    final = final.select(final['cbg_fips'].alias('cbg'))
-    
-    df = pd.read_csv('nyc_cbg_centroids.csv')
-    outputCBG = df.set_index('cbg_fips').T.to_dict('list')
+    def readPlacekey(partId, part):
+    if partId == 0: next(part)
+    for x in csv.reader(part):
+        yield x[9]
 
-    #CBG = 'nyc_cbg_centroids.csv'
+    outputSuermarket = sc.textFile('nyc_supermarkets.csv') \
+                .mapPartitionsWithIndex(readPlacekey).collect()
     
-    final.saveAsTextFile('test')
+    outputSuermarket.saveAsTextFile('test')
 
 if __name__ == '__main__':
   sc = SparkContext()
-  spark = SparkSession(sc)
+  #spark = SparkSession(sc)
   main(sc)
