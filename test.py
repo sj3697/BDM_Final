@@ -7,6 +7,7 @@ from pyspark import SparkContext
 import pandas as pd
 
 def main(sc):
+    spark = SparkSession(sc)
     final = pd.read_csv('nyc_cbg_centroids.csv')
     final = final[['cbg_fips']]
     final=spark.createDataFrame(final)
