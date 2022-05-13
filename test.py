@@ -18,9 +18,6 @@ def main(sc,sqlcontext):
     df = pd.read_csv('nyc_cbg_centroids.csv')
     outputCBG = df.set_index('cbg_fips').T.to_dict('list')
     
-    final = pd.read_csv('nyc_cbg_centroids.csv')
-    final = final[['cbg_fips']]
-    final = final.rename({'cbg_fips':'cbg'}, axis=1)
 
     df_s = pd.read_csv('nyc_supermarkets.csv')
     outputSupermarket = df_s['safegraph_placekey'].to_numpy()
@@ -40,6 +37,23 @@ def main(sc,sqlcontext):
                 b = t.transform(outputCBG[id][0],outputCBG[id][1])
                 dis = Point(a).distance(Point((b)))/5280
                 yield k, dis*temp[key], temp[key]
+                
+    def readPatterns_2019_10(partId, part):
+      t = Transformer.from_crs(4326, 2263)
+      if partId == 0: next(part)
+      for x in csv.reader(part):
+        if x[0] in outputSupermarket:
+          if '2019-11-01' > x[12] >= '2019-10-01' or '2019-11-01' > x[13] >= '2019-10-01':
+            temp = ast.literal_eval(x[19])
+            id = int(x[18])
+            for key in temp:
+              k = int(key)
+              if k in outputCBG:
+                a = t.transform(outputCBG[k][0],outputCBG[k][1])
+                b = t.transform(outputCBG[id][0],outputCBG[id][1])
+                dis = Point(a).distance(Point((b)))/5280
+                yield k, dis*temp[key], temp[key]
+
 
     output2019_03 = sc.textFile('/tmp/bdm/weekly-patterns-nyc-2019-2020') \
               .mapPartitionsWithIndex(readPatterns)
@@ -49,12 +63,18 @@ def main(sc,sqlcontext):
 
     df_2019_03 = df_2019_03.groupBy('cbg').sum('dis', 'count')
     df_2019_03 = df_2019_03.withColumn('2019_03', (df_2019_03[1]/df_2019_03[2])).select('cbg', '2019_03')
+
+    output2019_10 = sc.textFile('weekly-patterns-nyc-2019-2020-sample.csv') \
+              .mapPartitionsWithIndex(readPatterns_2019_10)
+
+    deptColumns = ["cbg","dis","count"]
+    df_2019_10 = output2019_10.toDF(deptColumns)
+    df_2019_10 = df_2019_10.groupBy('cbg').sum('dis', 'count')
+    df_2019_10 = df_2019_10.withColumn('2019_10', (df_2019_10[1]/df_2019_10[2])) \
+        .select('cbg', '2019_10')
+    final = df_2019_03.join(df_2019_10, on = "cbg", how='full')
     
-    #final = final.join(df_2019_03, on = 'cbg', how = 'left')
-##    df_2019_03 = df_2019_03.toPandas()
-##    final = final.merge(df_2019_03, on = 'cbg', how = 'left')
-    
-    df_2019_03.write.format("csv").option("header", "true").save("test")
+    final.write.format("csv").option("header", "true").save("test")
 
 if __name__ == '__main__':
   sc = SparkContext()
