@@ -28,7 +28,7 @@ def readPatterns(partId, part):
             dis = Point(a).distance(Point((b)))/5280
             yield k, dis*temp[key], temp[key]
 
-def main(sc):
+def main(sc,sqlcontext):
 
     df = pd.read_csv('nyc_cbg_centroids.csv')
     outputCBG = df.set_index('cbg_fips').T.to_dict('list')
