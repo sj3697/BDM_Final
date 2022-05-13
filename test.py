@@ -64,7 +64,7 @@ def main(sc,sqlcontext):
     df_2019_03 = df_2019_03.groupBy('cbg').sum('dis', 'count')
     df_2019_03 = df_2019_03.withColumn('2019_03', (df_2019_03[1]/df_2019_03[2])).select('cbg', '2019_03')
 
-    output2019_10 = sc.textFile('weekly-patterns-nyc-2019-2020-sample.csv') \
+    output2019_10 = sc.textFile('/tmp/bdm/weekly-patterns-nyc-2019-2020') \
               .mapPartitionsWithIndex(readPatterns_2019_10)
 
     deptColumns = ["cbg","dis","count"]
