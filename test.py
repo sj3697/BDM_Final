@@ -49,12 +49,12 @@ def main(sc,sqlcontext):
 
     df_2019_03 = df_2019_03.groupBy('cbg').sum('dis', 'count')
     df_2019_03 = df_2019_03.withColumn('2019_03', (df_2019_03[1]/df_2019_03[2])).select('cbg', '2019_03')
-    df_2019_03 = df_2019_03.rdd
+    
     #final = final.join(df_2019_03, on = 'cbg', how = 'left')
 ##    df_2019_03 = df_2019_03.toPandas()
 ##    final = final.merge(df_2019_03, on = 'cbg', how = 'left')
     
-    df_2019_03.df.write.format("csv").save("test.csv")
+    df_2019_03.write.format("csv").save("test.csv")
 
 if __name__ == '__main__':
   sc = SparkContext()
