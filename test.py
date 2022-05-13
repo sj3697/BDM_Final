@@ -54,6 +54,21 @@ def main(sc,sqlcontext):
                 dis = Point(a).distance(Point((b)))/5280
                 yield k, dis*temp[key], temp[key]
 
+    def readPatterns_2020_03(partId, part):
+      t = Transformer.from_crs(4326, 2263)
+      if partId == 0: next(part)
+      for x in csv.reader(part):
+        if x[0] in outputSupermarket:
+          if '2020-04-01' > x[12] >= '2020-03-01' or '2020-04-01' > x[13] >= '2020-03-01':
+            temp = ast.literal_eval(x[19])
+            id = int(x[18])
+            for key in temp:
+              k = int(key)
+              if k in outputCBG:
+                a = t.transform(outputCBG[k][0],outputCBG[k][1])
+                b = t.transform(outputCBG[id][0],outputCBG[id][1])
+                dis = Point(a).distance(Point((b)))/5280
+                yield k, dis*temp[key], temp[key]
 
     output2019_03 = sc.textFile('/tmp/bdm/weekly-patterns-nyc-2019-2020') \
               .mapPartitionsWithIndex(readPatterns)
@@ -73,6 +88,16 @@ def main(sc,sqlcontext):
     df_2019_10 = df_2019_10.withColumn('2019_10', (df_2019_10[1]/df_2019_10[2])) \
         .select('cbg', '2019_10')
     final = df_2019_03.join(df_2019_10, on = "cbg", how='full')
+
+    output2020_03 = sc.textFile('/tmp/bdm/weekly-patterns-nyc-2019-2020') \
+              .mapPartitionsWithIndex(readPatterns_2020_03)
+
+    deptColumns = ["cbg","dis","count"]
+    df_2020_03 = output2020_03.toDF(deptColumns)
+    df_2020_03 = df_2020_03.groupBy('cbg').sum('dis', 'count')
+    df_2020_03 = df_2020_03.withColumn('2020_03', (df_2020_03[1]/df_2020_03[2])) \
+        .select('cbg', '2020_03')
+    final = final.join(df_2020_03, on = "cbg", how='full').cache()
     
     final.write.format("csv").option("header", "true").save("test")
 
