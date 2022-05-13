@@ -12,22 +12,6 @@ import shapely
 from shapely.geometry import Point
 
 
-def readPatterns(partId, part):
-  t = Transformer.from_crs(4326, 2263)
-  if partId == 0: next(part)
-  for x in csv.reader(part):
-    if x[0] in outputSuermarket:
-      if '2019-04-01' > x[12] >= '2019-03-01' or '2019-04-01' > x[13] >= '2019-03-01':
-        temp = ast.literal_eval(x[19])
-        id = int(x[18])
-        for key in temp:
-          k = int(key)
-          if k in outputCBG:
-            a = t.transform(outputCBG[k][0],outputCBG[k][1])
-            b = t.transform(outputCBG[id][0],outputCBG[id][1])
-            dis = Point(a).distance(Point((b)))/5280
-            yield k, dis*temp[key], temp[key]
-
 def main(sc,sqlcontext):
 
     df = pd.read_csv('nyc_cbg_centroids.csv')
@@ -38,7 +22,23 @@ def main(sc,sqlcontext):
     final = final.rename({'cbg_fips':'cbg'}, axis=1)
 
     df_s = pd.read_csv('nyc_supermarkets.csv')
-    outputSuermarket = df_s['safegraph_placekey'].to_numpy()
+    outputSupermarket = df_s['safegraph_placekey'].to_numpy()
+
+    def readPatterns(partId, part):
+      t = Transformer.from_crs(4326, 2263)
+      if partId == 0: next(part)
+      for x in csv.reader(part):
+        if x[0] in outputSupermarket:
+          if '2019-04-01' > x[12] >= '2019-03-01' or '2019-04-01' > x[13] >= '2019-03-01':
+            temp = ast.literal_eval(x[19])
+            id = int(x[18])
+            for key in temp:
+              k = int(key)
+              if k in outputCBG:
+                a = t.transform(outputCBG[k][0],outputCBG[k][1])
+                b = t.transform(outputCBG[id][0],outputCBG[id][1])
+                dis = Point(a).distance(Point((b)))/5280
+                yield k, dis*temp[key], temp[key]
 
     output2019_03 = sc.textFile('/tmp/bdm/weekly-patterns-nyc-2019-2020') \
               .mapPartitionsWithIndex(readPatterns)
