@@ -127,7 +127,7 @@ def main(sc,sqlcontext):
 
     final = final.orderBy('cbg', ascending=True)
     
-    final.write.format("csv").option("header", "true").save("test")
+    final.write.format("csv").option("header", "true").save(sys.argv[1])
 
 if __name__ == '__main__':
   sc = SparkContext()
