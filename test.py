@@ -57,4 +57,4 @@ if __name__ == '__main__':
   sc = SparkContext()
   #spark = SparkSession(sc)
   sqlcontext=SQLContext(sc)
-  main(sc)
+  main(sc,sqlcontext)
