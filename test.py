@@ -54,7 +54,7 @@ def main(sc,sqlcontext):
 ##    df_2019_03 = df_2019_03.toPandas()
 ##    final = final.merge(df_2019_03, on = 'cbg', how = 'left')
     
-    df_2019_03.write.format("csv").save("test.csv")
+    df_2019_03.write.format("csv").option("header", "true").save("test")
 
 if __name__ == '__main__':
   sc = SparkContext()
