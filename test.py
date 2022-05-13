@@ -1,6 +1,7 @@
 import csv
 import pyspark
 from pyspark.sql import SparkSession
+from pyspark.sql import *
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
 from pyspark import SparkContext
@@ -55,4 +56,5 @@ def main(sc):
 if __name__ == '__main__':
   sc = SparkContext()
   #spark = SparkSession(sc)
+  sqlcontext=SQLContext(sc)
   main(sc)
